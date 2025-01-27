@@ -20,7 +20,7 @@ app.use(passport.initialize());
 app.get('/', (req, res) => {
     res.send('Server is running!');
   });
-app.use('/', authRoutes);
+app.use('/api', authRoutes);
 
 
 app.listen(PORT, () => {
