@@ -8,7 +8,13 @@ const generateJWT = (user) => {
 exports.googleAuth = (req, res, next) => {
   try {
     const token = generateJWT(req.user);
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        name: req.user.name,
+        profile_picture: req.user.profile_picture
+      }
+    });
   } catch (err) {
     next(err);
   }
