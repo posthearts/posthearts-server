@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const letterRoutes = require('./routes/letterRoutes');
 const PORT = process.env.PORT || 5000;
 
 require('dotenv').config();
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
     res.send('Server is running!');
   });
 app.use('/api', authRoutes);
+app.use('/api', letterRoutes);
 
 
 app.listen(PORT, () => {
