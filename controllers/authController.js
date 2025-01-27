@@ -5,7 +5,11 @@ const generateJWT = (user) => {
   return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
-exports.googleAuth = (req, res) => {
-  const token = generateJWT(req.user);
-  res.json({ token });
+exports.googleAuth = (req, res, next) => {
+  try {
+    const token = generateJWT(req.user);
+    res.json({ token });
+  } catch (err) {
+    next(err);
+  }
 };
