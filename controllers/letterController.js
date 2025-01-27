@@ -1,4 +1,5 @@
 const Letter = require('../models/Letter');
+const User = require('../models/User');
 const generateShareableLink = require('../utils/generateShareableLink');
 
 // Create a new letter
