@@ -1,5 +1,6 @@
 const express = require('express');
 const passport = require('passport');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const letterRoutes = require('./routes/letterRoutes');
@@ -15,6 +16,7 @@ connectDB();
 
 // Middleware
 app.use(express.json());
+app.use(cors()); 
 app.use(passport.initialize());
 
 // Routes
