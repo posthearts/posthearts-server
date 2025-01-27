@@ -4,8 +4,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Protect all routes with authentication middleware
-router.use(authMiddleware);
+// Protect all routes with authentication middleware except the public route
+router.use('/letters', authMiddleware);
 
 // Letter management routes
 router.post('/letters', letterController.createLetter);
