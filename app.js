@@ -1,0 +1,28 @@
+const express = require('express');
+const passport = require('passport');
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
+const PORT = process.env.PORT || 5000;
+
+require('dotenv').config();
+require('./config/passport');
+
+const app = express();
+
+// Connect to MongoDB
+connectDB();
+
+// Middleware
+app.use(express.json());
+app.use(passport.initialize());
+
+// Routes
+app.get('/', (req, res) => {
+    res.send('Server is running!');
+  });
+app.use('/', authRoutes);
+
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
