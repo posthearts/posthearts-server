@@ -115,6 +115,7 @@ export const getLetterByShareableLink = async (req: Request, res: Response) => {
 };
 
 
+
 // Generate PDF for a letter
 export const generatePDF = async (req: Request, res: Response) => {
   try {
@@ -134,32 +135,48 @@ export const generatePDF = async (req: Request, res: Response) => {
 
     // Add paper texture
     if (letter.paper.texture) {
-      const textureImageBytes = await axios.get(letter.paper.texture, { responseType: 'arraybuffer' }).then(res => res.data);
-      doc.image(textureImageBytes, 0, 0, { width: 600, height: 800 });
+      try {
+        const textureImageBytes = await axios.get(letter.paper.texture, { responseType: 'arraybuffer' }).then(res => res.data);
+        doc.image(textureImageBytes, 0, 0, { width: 600, height: 800 });
+      } catch (err) {
+        const error = err as Error;
+        console.error('Error fetching paper texture:', error.message);
+      }
     }
 
     // Add letter content
-    doc.font(letter.fontFamily || 'Helvetica')
-       .fontSize(12)
-       .text(letter.content, 50, 50, {
-         width: 500,
-         align: 'left',
-         lineGap: letter.paper.customStyle.lineHeight,
-       });
+    try {
+      doc.font(letter.fontFamily || 'Helvetica')
+         .fontSize(12)
+         .text(letter.content, 50, 50, {
+           width: 500,
+           align: 'left',
+           lineGap: letter.paper.customStyle.lineHeight,
+         });
+    } catch (err) {
+      const error = err as Error;
+      console.error('Error adding letter content:', error.message);
+    }
 
     // Add add-ons
     for (const addOn of letter.addOns) {
-      const addOnImageBytes = await axios.get(addOn.url, { responseType: 'arraybuffer' }).then(res => res.data);
-      doc.image(addOnImageBytes, addOn.position.x, 800 - addOn.position.y - addOn.size.height, {
-        width: addOn.size.width,
-        height: addOn.size.height,
-      });
+      try {
+        const addOnImageBytes = await axios.get(addOn.url, { responseType: 'arraybuffer' }).then(res => res.data);
+        doc.image(addOnImageBytes, addOn.position.x, 800 - addOn.position.y - addOn.size.height, {
+          width: addOn.size.width,
+          height: addOn.size.height,
+        });
+      } catch (err) {
+        const error = err as Error;
+        console.error('Error fetching add-on image:', error.message);
+      }
     }
 
     // Finalize the PDF and end the stream
     doc.end();
   } catch (err) {
     const error = err as Error;
+    console.error('Error generating PDF:', error.message);
     res.status(500).json({ message: 'Error generating PDF', error: error.message });
   }
 };
