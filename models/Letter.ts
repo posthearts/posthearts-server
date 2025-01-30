@@ -26,4 +26,4 @@ const letterSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Letter', letterSchema);
+export default mongoose.model('Letter', letterSchema);

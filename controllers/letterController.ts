@@ -1,12 +1,17 @@
-const Letter = require('../models/Letter');
-const User = require('../models/User');
-const generateShareableLink = require('../utils/generateShareableLink');
+import { Request, Response } from 'express';
+import Letter from '../models/Letter';
+import User from '../models/User';
+import generateShareableLink from '../utils/generateShareableLink';
+import { AuthenticatedRequest } from '../types';
 
 // Create a new letter
-exports.createLetter = async (req, res) => {
+export const createLetter = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { title, content, frameColor, paper, fontFamily, addOns } = req.body;
     const shareableLink = generateShareableLink();
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
     const letter = new Letter({
       user_id: req.user.id,
       title,
@@ -20,12 +25,13 @@ exports.createLetter = async (req, res) => {
     await letter.save();
     res.status(201).json(letter);
   } catch (err) {
-    res.status(500).json({ message: 'Error creating letter', error: err.message });
+    const error = err as Error;
+    res.status(500).json({ message: 'Error creating letter', error: error.message });
   }
 };
 
 // Update a letter
-exports.updateLetter = async (req, res) => {
+export const updateLetter = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { content, frameColor, paper, fontFamily, addOns } = req.body;
     const letter = await Letter.findByIdAndUpdate(
@@ -35,42 +41,49 @@ exports.updateLetter = async (req, res) => {
     );
     res.json({ message: 'Letter updated successfully', letter });
   } catch (err) {
-    res.status(500).json({ message: 'Error updating letter', error: err.message });
+    const error = err as Error;
+    res.status(500).json({ message: 'Error updating letter', error: error.message });
   }
 };
 
 // Fetch a letter
-exports.getLetter = async (req, res) => {
+export const getLetter = async (req: Request, res: Response) => {
   try {
     const letter = await Letter.findById(req.params.letter_id);
     res.json(letter);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching letter', error: err.message });
+    const error = err as Error;
+    res.status(500).json({ message: 'Error fetching letter', error: error.message });
   }
 };
 
 // Fetch all letters for the user
-exports.getAllLetters = async (req, res) => {
+export const getAllLetters = async (req: AuthenticatedRequest, res: Response) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
     const letters = await Letter.find({ user_id: req.user.id });
     res.json(letters);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching letters', error: err.message });
+    const error = err as Error;
+    res.status(500).json({ message: 'Error fetching letters', error: error.message });
   }
 };
 
 // Delete a letter
-exports.deleteLetter = async (req, res) => {
+export const deleteLetter = async (req: Request, res: Response) => {
   try {
     await Letter.findByIdAndDelete(req.params.letter_id);
     res.json({ message: 'Letter deleted successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Error deleting letter', error: err.message });
+    const error = err as Error;
+    res.status(500).json({ message: 'Error deleting letter', error: error.message });
   }
 };
 
 // Fetch a letter by its shareable link
-exports.getLetterByShareableLink = async (req, res) => {
+export const getLetterByShareableLink = async (req: Request, res: Response) => {
   try {
     const letter = await Letter.findOne({ shareable_link: req.params.shareable_link }).select('_id title content user_id frameColor paper fontFamily addOns');
     if (!letter) {
@@ -94,6 +107,7 @@ exports.getLetterByShareableLink = async (req, res) => {
       profile_picture: user.profile_picture
     });
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching letter', error: err.message });
+    const error = err as Error;
+    res.status(500).json({ message: 'Error fetching letter', error: error.message });
   }
 };
