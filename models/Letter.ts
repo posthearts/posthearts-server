@@ -10,7 +10,16 @@ const addOnSchema = new mongoose.Schema({
 
 const paperSchema = new mongoose.Schema({
   texture: { type: String, required: true },
-  customStyle: { type: String }
+  customStyle: {
+    radius: { type: Number, required: true },
+    padding: {
+      top: { type: Number, required: true },
+      bottom: { type: Number, required: true },
+      left: { type: Number, required: true },
+      right: { type: Number, required: true }
+    },
+    lineHeight: { type: Number, required: true }
+  }
 });
 
 const letterSchema = new mongoose.Schema({
