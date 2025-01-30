@@ -3,6 +3,8 @@ import Letter from '../models/Letter';
 import User from '../models/User';
 import generateShareableLink from '../utils/generateShareableLink';
 import { AuthenticatedRequest } from '../types';
+import PDFDocument from 'pdfkit';
+import fetch from 'node-fetch';
 
 // Create a new letter
 export const createLetter = async (req: AuthenticatedRequest, res: Response) => {
@@ -109,5 +111,55 @@ export const getLetterByShareableLink = async (req: Request, res: Response) => {
   } catch (err) {
     const error = err as Error;
     res.status(500).json({ message: 'Error fetching letter', error: error.message });
+  }
+};
+
+
+// Generate PDF for a letter
+export const generatePDF = async (req: Request, res: Response) => {
+  try {
+    const letter = await Letter.findById(req.params.letter_id);
+    if (!letter) {
+      return res.status(404).json({ message: 'Letter not found' });
+    }
+
+    const doc = new PDFDocument({ size: 'A4' });
+
+    // Set response headers
+    res.setHeader('Content-Disposition', 'attachment; filename=letter.pdf');
+    res.setHeader('Content-Type', 'application/pdf');
+
+    // Pipe the PDF into the response
+    doc.pipe(res);
+
+    // Add paper texture
+    if (letter.paper.texture) {
+      const textureImageBytes = await fetch(letter.paper.texture).then(res => res.buffer());
+      doc.image(textureImageBytes, 0, 0, { width: 600, height: 800 });
+    }
+
+    // Add letter content
+    doc.font(letter.fontFamily)
+       .fontSize(12)
+       .text(letter.content, 50, 50, {
+         width: 500,
+         align: 'left',
+         lineGap: letter.paper.customStyle.lineHeight,
+       });
+
+    // Add add-ons
+    for (const addOn of letter.addOns) {
+      const addOnImageBytes = await fetch(addOn.url).then(res => res.buffer());
+      doc.image(addOnImageBytes, addOn.position.x, 800 - addOn.position.y - addOn.size.height, {
+        width: addOn.size.width,
+        height: addOn.size.height,
+      });
+    }
+
+    // Finalize the PDF and end the stream
+    doc.end();
+  } catch (err) {
+    const error = err as Error;
+    res.status(500).json({ message: 'Error generating PDF', error: error.message });
   }
 };

@@ -16,5 +16,6 @@ router.put('/letters/:letter_id', letterController.updateLetter);
 router.get('/letters/:letter_id', letterController.getLetter);
 router.get('/letters', letterController.getAllLetters);
 router.delete('/letters/:letter_id', letterController.deleteLetter);
+router.get('/letters/:letter_id/download/pdf', letterController.generatePDF);
 
 export default router;
