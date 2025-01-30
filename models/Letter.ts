@@ -1,11 +1,19 @@
 const mongoose = require('mongoose');
 
 const addOnSchema = new mongoose.Schema({
-  url: { type: String, required: true },
+  name: { type: String, required: true },
+  id: { type: String, required: true },
   position: {
     x: { type: Number, required: true },
     y: { type: Number, required: true }
-  }
+  },
+  size: {
+    width: { type: Number, required: false },
+    height: { type: Number, required: false }
+  },
+  rotation: { type: Number, required: false },
+  type: { type: String, enum: ['sticker', 'emoji'], required: true },
+  letterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Letter', required: true }
 });
 
 const paperSchema = new mongoose.Schema({
@@ -19,6 +27,10 @@ const paperSchema = new mongoose.Schema({
       right: { type: Number, required: true }
     },
     lineHeight: { type: Number, required: true }
+  },
+  cssStyles: {
+    type: Map,
+    of: String
   }
 });
 
