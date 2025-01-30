@@ -4,7 +4,6 @@ import User from '../models/User';
 import generateShareableLink from '../utils/generateShareableLink';
 import { AuthenticatedRequest } from '../types';
 import PDFDocument from 'pdfkit';
-import fetch from 'node-fetch';
 
 // Create a new letter
 export const createLetter = async (req: AuthenticatedRequest, res: Response) => {
@@ -122,6 +121,8 @@ export const generatePDF = async (req: Request, res: Response) => {
     if (!letter) {
       return res.status(404).json({ message: 'Letter not found' });
     }
+
+    const fetch = (await import('node-fetch')).default;
 
     const doc = new PDFDocument({ size: 'A4' });
 
