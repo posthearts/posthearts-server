@@ -13,14 +13,14 @@ passport.use(new GoogleStrategy({
 async (accessToken: string, refreshToken: string, profile: Profile, done: (error: any, user?: any) => void) => {
   try {
     console.log('Google profile:', profile);
-    const existingUser = await User.findOne({ googleId: profile.id });
+    const existingUser = await User.findOne({ google_id: profile.id });
     if (existingUser) {
       console.log('User already exists:', existingUser);
       return done(null, existingUser);
     }
 
     const newUser = new User({
-      googleId: profile.id,
+      google_id: profile.id,
       name: profile.displayName,
       profile_picture: profile.photos ? profile.photos[0].value : '',
       email: profile.emails ? profile.emails[0].value : ''
