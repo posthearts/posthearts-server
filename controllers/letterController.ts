@@ -4,6 +4,7 @@ import User from '../models/User';
 import generateShareableLink from '../utils/generateShareableLink';
 import { AuthenticatedRequest } from '../types';
 import PDFDocument from 'pdfkit';
+import axios from 'axios';
 
 // Create a new letter
 export const createLetter = async (req: AuthenticatedRequest, res: Response) => {
@@ -122,8 +123,6 @@ export const generatePDF = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Letter not found' });
     }
 
-    const fetch = (await import('node-fetch')).default;
-
     const doc = new PDFDocument({ size: 'A4' });
 
     // Set response headers
@@ -135,12 +134,12 @@ export const generatePDF = async (req: Request, res: Response) => {
 
     // Add paper texture
     if (letter.paper.texture) {
-      const textureImageBytes = await fetch(letter.paper.texture).then(res => res.buffer());
+      const textureImageBytes = await axios.get(letter.paper.texture, { responseType: 'arraybuffer' }).then(res => res.data);
       doc.image(textureImageBytes, 0, 0, { width: 600, height: 800 });
     }
 
     // Add letter content
-    doc.font(letter.fontFamily)
+    doc.font(letter.fontFamily || 'Helvetica')
        .fontSize(12)
        .text(letter.content, 50, 50, {
          width: 500,
@@ -150,7 +149,7 @@ export const generatePDF = async (req: Request, res: Response) => {
 
     // Add add-ons
     for (const addOn of letter.addOns) {
-      const addOnImageBytes = await fetch(addOn.url).then(res => res.buffer());
+      const addOnImageBytes = await axios.get(addOn.url, { responseType: 'arraybuffer' }).then(res => res.data);
       doc.image(addOnImageBytes, addOn.position.x, 800 - addOn.position.y - addOn.size.height, {
         width: addOn.size.width,
         height: addOn.size.height,
