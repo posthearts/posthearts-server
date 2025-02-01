@@ -16,13 +16,8 @@ export const googleAuth = (req: Request, res: Response, next: NextFunction): voi
   try {
     const user = req.user as User;
     const token = generateJWT(user);
-    res.json({
-      token,
-      user: {
-        name: user.name,
-        profile_picture: user.profile_picture
-      }
-    });
+    const redirectUrl = `https://posthearts.vercel.app/api/auth?token=${token}&name=${encodeURIComponent(user.name)}&profile_picture=${encodeURIComponent(user.profile_picture)}`;
+    res.redirect(redirectUrl);
   } catch (err) {
     next(err);
   }
